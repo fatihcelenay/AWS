@@ -11,8 +11,19 @@ db_endpoint = open("/home/ec2-user/dbserver.endpoint", 'r', encoding='UTF-8')
 
 app.config['MYSQL_DATABASE_HOST'] = db_endpoint.readline().strip()
 app.config['MYSQL_DATABASE_USER'] = 'admin'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Serdar_1'
-app.config['MYSQL_DATABASE_DB'] = 'clarusway_phonebook'
+import os
+
+# Database credentials must be supplied via environment variables.
+# Never hardcode credentials in source code.
+app.config['MYSQL_DATABASE_USER'] = os.environ.get('MYSQL_DATABASE_USER', '')
+app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get('MYSQL_DATABASE_PASSWORD', '')
+app.config['MYSQL_DATABASE_DB'] = os.environ.get('MYSQL_DATABASE_DB', 'clarusway_phonebook')
+
+if not app.config['MYSQL_DATABASE_USER'] or not app.config['MYSQL_DATABASE_PASSWORD']:
+    raise RuntimeError(
+        'Required database credentials (MYSQL_DATABASE_USER, MYSQL_DATABASE_PASSWORD) '
+        'are not set in environment variables.'
+    )app.config['MYSQL_DATABASE_DB'] = 'clarusway_phonebook'
 app.config['MYSQL_DATABASE_PORT'] = 3306
 db_endpoint.close()
 mysql = MySQL()
